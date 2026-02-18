@@ -5,6 +5,15 @@ Models for Announcements app.
 from django.conf import settings
 from django.db import models
 
+REACTION_CHOICES = [
+    ("like", "👍"),
+    ("heart", "❤️"),
+    ("laugh", "😂"),
+    ("surprised", "😮"),
+    ("sad", "😢"),
+    ("celebrate", "🎉"),
+]
+
 
 class Announcement(models.Model):
     """Important announcements for the community."""
@@ -59,3 +68,29 @@ class AnnouncementAttachment(models.Model):
         """Delete the file from storage when the attachment is deleted."""
         self.file.delete(save=False)
         return super().delete(*args, **kwargs)
+
+
+class AnnouncementReaction(models.Model):
+    """A reaction (emoji) on an announcement."""
+
+    REACTION_CHOICES = REACTION_CHOICES
+
+    announcement = models.ForeignKey(
+        Announcement,
+        on_delete=models.CASCADE,
+        related_name="reactions",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="announcement_reactions",
+    )
+    reaction_type = models.CharField(max_length=20, choices=REACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ["announcement", "user", "reaction_type"]
+        ordering = ["created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.user} reacted {self.reaction_type} to {self.announcement}"

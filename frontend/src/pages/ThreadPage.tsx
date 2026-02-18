@@ -690,9 +690,9 @@ function PostCard({
 
             <Divider my="sm" />
             <Reactions
-              postId={post.id}
-              threadId={threadId}
               reactions={post.reactions || []}
+              toggleFn={(type) => forumApi.toggleReaction(post.id, type)}
+              queryKey={["thread", threadId]}
             />
           </>
         )}

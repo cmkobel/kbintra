@@ -32,6 +32,7 @@ import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 
 import { announcementsApi } from "../api/announcements"
+import Reactions from "../components/Reactions"
 import { filterFilesBySize } from "../config"
 import RichTextEditor from "../components/RichTextEditor"
 import FileDropzone, { AttachmentArea } from "../components/FileDropzone"
@@ -368,6 +369,14 @@ function AnnouncementCard({
           onClose={() => setPreviewFile(null)}
         />
       )}
+
+      <Box mt="md" pt="sm" style={{ borderTop: "1px solid var(--mantine-color-gray-3)" }}>
+        <Reactions
+          reactions={announcement.reactions || []}
+          toggleFn={(type) => announcementsApi.toggleReaction(announcement.id, type)}
+          queryKey={["announcements"]}
+        />
+      </Box>
     </Paper>
   )
 }

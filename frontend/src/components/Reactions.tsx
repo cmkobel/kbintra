@@ -12,7 +12,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { IconMoodSmile } from "@tabler/icons-react"
 import { useState } from "react"
 
-import { forumApi } from "../api/forum"
 import type { ReactionSummary, ReactionType } from "../types"
 
 // Emoji map for reactions
@@ -35,24 +34,19 @@ const REACTION_LABELS: Record<ReactionType, string> = {
 }
 
 interface ReactionsProps {
-  postId: number
-  threadId: number
   reactions: ReactionSummary[]
+  toggleFn: (type: ReactionType) => Promise<unknown>
+  queryKey: unknown[]
 }
 
-export default function Reactions({
-  postId,
-  threadId,
-  reactions,
-}: ReactionsProps) {
+export default function Reactions({ reactions, toggleFn, queryKey }: ReactionsProps) {
   const queryClient = useQueryClient()
   const [popoverOpened, setPopoverOpened] = useState(false)
 
   const toggleMutation = useMutation({
-    mutationFn: (reactionType: ReactionType) =>
-      forumApi.toggleReaction(postId, reactionType),
+    mutationFn: (reactionType: ReactionType) => toggleFn(reactionType),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["thread", threadId] })
+      queryClient.invalidateQueries({ queryKey })
       setPopoverOpened(false)
     },
   })
@@ -61,7 +55,6 @@ export default function Reactions({
     toggleMutation.mutate(reactionType)
   }
 
-  // Get all reaction types for the picker
   const allReactionTypes: ReactionType[] = [
     "like",
     "heart",

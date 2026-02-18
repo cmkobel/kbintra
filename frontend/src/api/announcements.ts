@@ -3,7 +3,7 @@
  */
 
 import { apiClient } from "./client"
-import type { Announcement, CreateAnnouncementData } from "../types"
+import type { Announcement, CreateAnnouncementData, ReactionType } from "../types"
 
 export const announcementsApi = {
   getAnnouncements: async (
@@ -59,5 +59,9 @@ export const announcementsApi = {
 
   deleteAnnouncement: async (id: number): Promise<void> => {
     await apiClient.delete(`/announcements/${id}/`)
+  },
+
+  toggleReaction: async (id: number, reactionType: ReactionType): Promise<void> => {
+    await apiClient.post(`/announcements/${id}/react/`, { reaction_type: reactionType })
   },
 }

@@ -286,6 +286,7 @@ export interface Announcement {
   priority: number
   is_own: boolean
   attachments: AnnouncementAttachment[]
+  reactions: ReactionSummary[]
   created_at: string
   updated_at: string
 }

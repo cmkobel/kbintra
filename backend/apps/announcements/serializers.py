@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from apps.users.models import User
 
-from .models import Announcement, AnnouncementAttachment
+from .models import Announcement, AnnouncementAttachment, AnnouncementReaction
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -46,6 +46,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(read_only=True)
     is_own = serializers.SerializerMethodField()
     attachments = AnnouncementAttachmentSerializer(many=True, read_only=True)
+    reactions = serializers.SerializerMethodField()
 
     class Meta:
         model = Announcement
@@ -58,6 +59,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "priority",
             "is_own",
             "attachments",
+            "reactions",
             "created_at",
             "updated_at",
         ]
@@ -68,6 +70,29 @@ class AnnouncementSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.author_id == request.user.id
         return False
+
+    def get_reactions(self, obj: Announcement) -> list[dict]:
+        """Get reaction summary with counts and user's own reactions."""
+        request = self.context.get("request")
+        user_id = request.user.id if request and request.user.is_authenticated else None
+
+        reaction_counts: dict[str, dict] = {}
+        emoji_map = dict(AnnouncementReaction.REACTION_CHOICES)
+
+        for reaction in obj.reactions.all():
+            r_type = reaction.reaction_type
+            if r_type not in reaction_counts:
+                reaction_counts[r_type] = {
+                    "reaction_type": r_type,
+                    "emoji": emoji_map.get(r_type, ""),
+                    "count": 0,
+                    "has_reacted": False,
+                }
+            reaction_counts[r_type]["count"] += 1
+            if user_id and reaction.user_id == user_id:
+                reaction_counts[r_type]["has_reacted"] = True
+
+        return list(reaction_counts.values())
 
 
 class AnnouncementCreateSerializer(serializers.ModelSerializer):

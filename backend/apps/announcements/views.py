@@ -36,7 +36,7 @@ class AnnouncementListCreateView(generics.ListCreateAPIView):
     def get_queryset(self) -> Any:
         # By default only show active announcements
         queryset = Announcement.objects.select_related("author").prefetch_related(
-            "attachments__uploaded_by", "reactions"
+            "attachments__uploaded_by", "reactions__user"
         )
         # Allow filtering by is_active
         is_active = self.request.query_params.get("is_active")
@@ -52,7 +52,7 @@ class AnnouncementDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     queryset = Announcement.objects.select_related("author").prefetch_related(
-        "attachments__uploaded_by", "reactions"
+        "attachments__uploaded_by", "reactions__user"
     )
 
     def get_serializer_class(self) -> type:

@@ -70,7 +70,9 @@ export default function Reactions({ reactions, toggleFn, queryKey }: ReactionsPr
       {reactions.map((reaction) => (
         <Tooltip
           key={reaction.reaction_type}
-          label={REACTION_LABELS[reaction.reaction_type]}
+          label={reaction.users.join(", ")}
+          multiline
+          maw={200}
         >
           <UnstyledButton
             onClick={() => handleReaction(reaction.reaction_type)}

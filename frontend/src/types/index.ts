@@ -159,6 +159,7 @@ export interface ReactionSummary {
   emoji: string
   count: number
   has_reacted: boolean
+  users: string[]
 }
 
 export interface ReactionTypeInfo {

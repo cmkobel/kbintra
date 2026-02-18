@@ -271,7 +271,7 @@ class PostListCreateView(generics.ListCreateAPIView):
         return (
             Post.objects.filter(thread=thread)
             .select_related("author")
-            .prefetch_related("attachments__uploaded_by", "reactions", "poll__options__votes__user")
+            .prefetch_related("attachments__uploaded_by", "reactions__user", "poll__options__votes__user")
         )
 
     def get_serializer_context(self) -> dict:
